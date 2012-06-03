@@ -259,8 +259,9 @@ namespace FarseerPhysics.Dynamics
 #if USE_ACTIVE_CONTACT_SET
 			ActiveList.AddRange(ActiveContacts);
 
-			foreach (var c in ActiveList)
+			for (int i = 0; i < ActiveList.Count; i++)
 			{
+				Contact c = ActiveList[i];
 #else
             for (int i = 0; i < ContactList.Count; i++)
             {
