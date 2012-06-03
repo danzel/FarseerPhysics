@@ -126,9 +126,9 @@ namespace FarseerPhysics.Dynamics
         internal Dictionary<int, bool> _collisionIgnores;
 
 #if USE_IGNORE_CCD_CATEGORIES
-		public Category IgnoreCCDWith;
+        public Category IgnoreCCDWith;
 #endif
-		private float _friction;
+        private float _friction;
         private float _restitution;
 
         internal Fixture()
@@ -142,12 +142,12 @@ namespace FarseerPhysics.Dynamics
 
         public Fixture(Body body, Shape shape, object userData)
         {
-			_collisionCategories = Settings.DefaultFixtureCollisionCategories;
-			_collidesWith = Settings.DefaultFixtureCollidesWith;
+            _collisionCategories = Settings.DefaultFixtureCollisionCategories;
+            _collidesWith = Settings.DefaultFixtureCollidesWith;
             _collisionGroup = 0;
 
 #if USE_IGNORE_CCD_CATEGORIES
-			IgnoreCCDWith = Settings.DefaultFixtureIgnoreCCDWith;
+            IgnoreCCDWith = Settings.DefaultFixtureIgnoreCCDWith;
 #endif
 
             //Fixture defaults
@@ -365,7 +365,7 @@ namespace FarseerPhysics.Dynamics
         /// </summary>
         /// <param name="fixture">The fixture.</param>
         /// <returns>
-        /// 	<c>true</c> if the fixture is ignored; otherwise, <c>false</c>.
+        ///     <c>true</c> if the fixture is ignored; otherwise, <c>false</c>.
         /// </returns>
         public bool IsFixtureIgnored(Fixture fixture)
         {
