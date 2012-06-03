@@ -25,3 +25,4 @@ Samples/TestbedXNA/bin
 Samples/TestbedXNA/Content/obj
 Samples/TestbedXNA/obj
 *.suo
+*.csproj.user

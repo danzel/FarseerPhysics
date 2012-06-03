@@ -20,39 +20,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld XNA Content", "HelloWorldXNA\Content\HelloWorld XNA Content.contentproj", "{1999498C-698A-41C7-8C90-DD4D3B353D5B}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 10
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs01
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = ..\\DebugViews\\DebugViewXNA\\Content\\DebugView\u0020XNA\u0020Content.contentproj
-		SccProjectName1 = ../DebugViews/DebugViewXNA/Content
-		SccLocalPath1 = ..\\DebugViews\\DebugViewXNA\\Content
-		SccProjectUniqueName2 = TestbedXNA\\Content\\TestBed\u0020XNA\u0020Content.contentproj
-		SccProjectName2 = TestbedXNA/Content
-		SccLocalPath2 = TestbedXNA\\Content
-		SccProjectUniqueName3 = ..\\DebugViews\\DebugViewXNA\\DebugView\u0020XNA\u0020WP7.csproj
-		SccProjectName3 = ../DebugViews/DebugViewXNA
-		SccLocalPath3 = ..\\DebugViews\\DebugViewXNA
-		SccProjectUniqueName4 = TestbedXNA\\TestBed\u0020XNA\u0020WP7.csproj
-		SccProjectName4 = TestbedXNA
-		SccLocalPath4 = TestbedXNA
-		SccProjectUniqueName5 = ..\\Branches\\XNA\\Farseer\u0020Physics\u0020XNA\u0020WP7.csproj
-		SccProjectName5 = ../Branches/XNA
-		SccLocalPath5 = ..\\Branches\\XNA
-		SccProjectUniqueName6 = Samples\u0020XNA\\Samples\u0020XNA\\Samples\u0020XNA\u0020WP7.csproj
-		SccProjectName6 = Samples\u0020XNA/Samples\u0020XNA
-		SccLocalPath6 = Samples\u0020XNA\\Samples\u0020XNA
-		SccProjectUniqueName7 = Samples\u0020XNA\\Samples\u0020XNAContent\\Samples\u0020XNA\u0020Content.contentproj
-		SccProjectName7 = Samples\u0020XNA/Samples\u0020XNAContent
-		SccLocalPath7 = Samples\u0020XNA\\Samples\u0020XNAContent
-		SccProjectUniqueName8 = HelloWorldXNA\\HelloWorld\u0020XNA\u0020WP7.csproj
-		SccProjectName8 = HelloWorldXNA
-		SccLocalPath8 = HelloWorldXNA
-		SccProjectUniqueName9 = HelloWorldXNA\\Content\\HelloWorld\u0020XNA\u0020Content.contentproj
-		SccProjectName9 = HelloWorldXNA/Content
-		SccLocalPath9 = HelloWorldXNA\\Content
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
