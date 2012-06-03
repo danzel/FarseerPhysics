@@ -24,3 +24,4 @@ Samples/SimpleSamplesSilverlight/obj
 Samples/TestbedXNA/bin
 Samples/TestbedXNA/Content/obj
 Samples/TestbedXNA/obj
+*.suo
