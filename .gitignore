@@ -1,0 +1,26 @@
+Branches/Class/bin
+Branches/Class/obj
+Branches/Silverlight/Bin
+Branches/Silverlight/obj
+Branches/XNA/bin
+Branches/XNA/obj
+DebugViews/DebugViewSilverlight/Bin
+DebugViews/DebugViewSilverlight/obj
+DebugViews/DebugViewXNA/bin
+DebugViews/DebugViewXNA/Content/obj
+DebugViews/DebugViewXNA/obj
+*.csproj.Debug.cachefile
+*/_ReSharper.*
+Samples/DemoBaseSilverlight/Bin
+Samples/DemoBaseSilverlight/obj
+Samples/HelloWorldXNA/bin
+Samples/HelloWorldXNA/Content/obj
+Samples/HelloWorldXNA/obj
+Samples/Samples XNA/Samples XNA/bin
+Samples/Samples XNA/Samples XNA/obj
+Samples/Samples XNA/Samples XNAContent/obj
+Samples/SimpleSamplesSilverlight/Bin
+Samples/SimpleSamplesSilverlight/obj
+Samples/TestbedXNA/bin
+Samples/TestbedXNA/Content/obj
+Samples/TestbedXNA/obj
