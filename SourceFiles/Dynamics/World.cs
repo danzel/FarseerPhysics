@@ -1142,6 +1142,8 @@ namespace FarseerPhysics.Dynamics
             }
 #endif
 #if USE_ISLAND_SET 
+            foreach (var b in IslandSet)
+                b.Flags &= ~BodyFlags.Island;
             IslandSet.Clear();
 #endif
 
