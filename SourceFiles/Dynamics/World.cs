@@ -25,8 +25,8 @@
 #define USE_ACTIVE_CONTACT_SET
 #define USE_AWAKE_BODY_SET
 #define USE_ISLAND_SET
-#define OPTIMIZE_TOI
-#define USE_IGNORE_CCD_CATEGORIES
+//#define OPTIMIZE_TOI
+//#define USE_IGNORE_CCD_CATEGORIES
 
 using System;
 using System.Collections.Generic;
@@ -275,19 +275,23 @@ namespace FarseerPhysics.Dynamics
 
         public List<BreakableBody> BreakableBodyList { get; private set; }
 
-        public float UpdateTime { get; private set; }
+        public long UpdateTime { get; private set; }
 
-        public float ContinuousPhysicsTime { get; private set; }
+        public long ContinuousPhysicsTime { get; private set; }
 
-        public float ControllersUpdateTime { get; private set; }
+        public long ControllersUpdateTime { get; private set; }
 
-        public float AddRemoveTime { get; private set; }
+        public long AddRemoveTime { get; private set; }
 
-        public float ContactsUpdateTime { get; private set; }
+    	public long FindNewContacts { get; private set; }
 
-        public float SolveUpdateTime { get; private set; }
+    	public long ContactsUpdateTime { get; private set; }
 
-        /// <summary>
+        public long SolveUpdateTime { get; private set; }
+
+    	public long TidyUp { get; private set; }
+
+    	/// <summary>
         /// Get the number of broad-phase proxies.
         /// </summary>
         /// <value>The proxy count.</value>
@@ -759,7 +763,12 @@ namespace FarseerPhysics.Dynamics
             {
                 ContactManager.FindNewContacts();
                 Flags &= ~WorldFlags.NewFixture;
-            }
+
+			}
+#if (!SILVERLIGHT)
+			if (Settings.EnableDiagnostics)
+				FindNewContacts = _watch.ElapsedTicks - AddRemoveTime;
+#endif
 
             TimeStep step;
             step.inv_dt = 1.0f / dt;
@@ -774,7 +783,7 @@ namespace FarseerPhysics.Dynamics
 
 #if (!SILVERLIGHT)
             if (Settings.EnableDiagnostics)
-                ControllersUpdateTime = _watch.ElapsedTicks - AddRemoveTime;
+				ControllersUpdateTime = _watch.ElapsedTicks - AddRemoveTime - FindNewContacts;
 #endif
 
             // Update contacts. This is where some contacts are destroyed.
@@ -782,14 +791,14 @@ namespace FarseerPhysics.Dynamics
 
 #if (!SILVERLIGHT)
             if (Settings.EnableDiagnostics)
-                ContactsUpdateTime = _watch.ElapsedTicks - (AddRemoveTime + ControllersUpdateTime);
+				ContactsUpdateTime = _watch.ElapsedTicks - (AddRemoveTime + ControllersUpdateTime + FindNewContacts);
 #endif
             // Integrate velocities, solve velocity raints, and integrate positions.
             Solve(ref step);
 
 #if (!SILVERLIGHT)
             if (Settings.EnableDiagnostics)
-                SolveUpdateTime = _watch.ElapsedTicks - (AddRemoveTime + ControllersUpdateTime + ContactsUpdateTime);
+				SolveUpdateTime = _watch.ElapsedTicks - (AddRemoveTime + ControllersUpdateTime + ContactsUpdateTime + FindNewContacts);
 #endif
 
             // Handle TOI events.
@@ -801,7 +810,7 @@ namespace FarseerPhysics.Dynamics
 #if (!SILVERLIGHT)
             if (Settings.EnableDiagnostics)
                 ContinuousPhysicsTime = _watch.ElapsedTicks -
-                                        (AddRemoveTime + ControllersUpdateTime + ContactsUpdateTime + SolveUpdateTime);
+										(AddRemoveTime + ControllersUpdateTime + ContactsUpdateTime + SolveUpdateTime + FindNewContacts);
 #endif
             _invDt0 = step.inv_dt;
 
@@ -818,7 +827,9 @@ namespace FarseerPhysics.Dynamics
 #if (!SILVERLIGHT)
             if (Settings.EnableDiagnostics)
             {
-                _watch.Stop();
+				TidyUp = _watch.ElapsedTicks -
+										(AddRemoveTime + ControllersUpdateTime + ContactsUpdateTime + SolveUpdateTime + FindNewContacts + ContinuousPhysicsTime);
+				_watch.Stop();
                 //AddRemoveTime = 1000 * AddRemoveTime / Stopwatch.Frequency;
 
                 UpdateTime = _watch.ElapsedTicks;
