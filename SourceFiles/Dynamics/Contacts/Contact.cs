@@ -303,7 +303,13 @@ namespace FarseerPhysics.Dynamics.Contacts
             {
                 Shape shapeA = FixtureA.Shape;
                 Shape shapeB = FixtureB.Shape;
-                touching = AABB.TestOverlap(shapeA, ChildIndexA, shapeB, ChildIndexB, ref bodyA.Xf, ref bodyB.Xf);
+                //touching = AABB.TestOverlap(shapeA, ChildIndexA, shapeB, ChildIndexB, ref bodyA.Xf, ref bodyB.Xf);
+
+                //HACK: Super hack sensor overlap, triggers if AABBs overlap
+                AABB AABBA, AABBB;
+                shapeA.ComputeAABB(out AABBA, ref bodyA.Xf, 0);
+                shapeB.ComputeAABB(out AABBB, ref bodyB.Xf, 0);
+                touching = AABB.TestOverlap(ref AABBA, ref AABBB);
 
                 // Sensors don't generate manifolds.
                 Manifold.PointCount = 0;
