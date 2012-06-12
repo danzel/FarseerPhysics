@@ -29,7 +29,7 @@ using Microsoft.Xna.Framework;
 
 namespace FarseerPhysics.Collision
 {
-    internal struct Pair : IComparable<Pair>
+    public struct Pair : IComparable<Pair>
     {
         public int ProxyIdA;
         public int ProxyIdB;
@@ -77,15 +77,7 @@ namespace FarseerPhysics.Collision
         private int _proxyCount;
         private Func<int, bool> _queryCallback;
         private int _queryProxyId;
-        private bool _queryingStaticTree;
-        /// <summary>
-        /// Tree for Static fixtures
-        /// </summary>
-        private DynamicTree<FixtureProxy> _treeStatic = new DynamicTree<FixtureProxy>();
-        /// <summary>
-        /// Tree for Dynamic fixtures
-        /// </summary>
-        private DynamicTree<FixtureProxy> _treeDynamic = new DynamicTree<FixtureProxy>();
+        private DynamicTree<FixtureProxy> _tree = new DynamicTree<FixtureProxy>();
 
         public DynamicTreeBroadPhase()
         {
@@ -117,12 +109,10 @@ namespace FarseerPhysics.Collision
         /// <returns></returns>
         public int AddProxy(ref FixtureProxy proxy)
         {
-            bool isStatic = proxy.Fixture.Body.IsStatic;
-            var tree = isStatic ? _treeStatic : _treeDynamic;
-            int externalProxyId = GetExternalId(tree.AddProxy(ref proxy.AABB, proxy), isStatic);
+            int proxyId = _tree.AddProxy(ref proxy.AABB, proxy);
             ++_proxyCount;
-            BufferMove(externalProxyId);
-            return externalProxyId;
+            BufferMove(proxyId);
+            return proxyId;
         }
 
         /// <summary>
@@ -133,15 +123,12 @@ namespace FarseerPhysics.Collision
         {
             UnBufferMove(proxyId);
             --_proxyCount;
-            var tree = IsStaticProxyId(proxyId) ? _treeStatic : _treeDynamic;
-            tree.RemoveProxy(GetInternalId(proxyId));
+            _tree.RemoveProxy(proxyId);
         }
 
         public void MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement)
         {
-            var tree = IsStaticProxyId(proxyId) ? _treeStatic : _treeDynamic;
-            var internalProxyId = GetInternalId(proxyId);
-            bool buffer = tree.MoveProxy(internalProxyId, ref aabb, displacement);
+            bool buffer = _tree.MoveProxy(proxyId, ref aabb, displacement);
             if (buffer)
             {
                 BufferMove(proxyId);
@@ -155,8 +142,7 @@ namespace FarseerPhysics.Collision
         /// <param name="aabb">The aabb.</param>
         public void GetFatAABB(int proxyId, out AABB aabb)
         {
-            var tree = IsStaticProxyId(proxyId) ? _treeStatic : _treeDynamic;
-            tree.GetFatAABB(GetInternalId(proxyId), out aabb);
+            _tree.GetFatAABB(proxyId, out aabb);
         }
 
         /// <summary>
@@ -166,8 +152,7 @@ namespace FarseerPhysics.Collision
         /// <returns></returns>
         public FixtureProxy GetProxy(int proxyId)
         {
-            var tree = IsStaticProxyId(proxyId) ? _treeStatic : _treeDynamic;
-            return tree.GetUserData(GetInternalId(proxyId));
+            return _tree.GetUserData(proxyId);
         }
 
         /// <summary>
@@ -179,8 +164,8 @@ namespace FarseerPhysics.Collision
         public bool TestOverlap(int proxyIdA, int proxyIdB)
         {
             AABB aabbA, aabbB;
-            (IsStaticProxyId(proxyIdA) ? _treeStatic : _treeDynamic).GetFatAABB(GetInternalId(proxyIdA), out aabbA);
-            (IsStaticProxyId(proxyIdB) ? _treeStatic : _treeDynamic).GetFatAABB(GetInternalId(proxyIdB), out aabbB);
+            _tree.GetFatAABB(proxyIdA, out aabbA);
+            _tree.GetFatAABB(proxyIdB, out aabbB);
             return AABB.TestOverlap(ref aabbA, ref aabbB);
         }
 
@@ -202,21 +187,13 @@ namespace FarseerPhysics.Collision
                     continue;
                 }
 
-                bool isStatic = IsStaticProxyId(_queryProxyId);
-
                 // We have to query the tree with the fat AABB so that
                 // we don't fail to create a pair that may touch later.
                 AABB fatAABB;
-                (isStatic ? _treeStatic : _treeDynamic).GetFatAABB(GetInternalId(_queryProxyId), out fatAABB);
+                _tree.GetFatAABB(_queryProxyId, out fatAABB);
 
                 // Query tree, create pairs and add them pair buffer.
-                if (!isStatic)
-                {
-                    _queryingStaticTree = true;
-                    _treeStatic.Query(_queryCallback, ref fatAABB);
-                }
-                _queryingStaticTree = false;
-                _treeDynamic.Query(_queryCallback, ref fatAABB);
+                _tree.Query(_queryCallback, ref fatAABB);
             }
 
             // Reset move buffer
@@ -230,8 +207,8 @@ namespace FarseerPhysics.Collision
             while (i < _pairCount)
             {
                 Pair primaryPair = _pairBuffer[i];
-                FixtureProxy userDataA = (IsStaticProxyId(primaryPair.ProxyIdA) ? _treeStatic : _treeDynamic).GetUserData(GetInternalId(primaryPair.ProxyIdA));
-                FixtureProxy userDataB = (IsStaticProxyId(primaryPair.ProxyIdB) ? _treeStatic : _treeDynamic).GetUserData(GetInternalId(primaryPair.ProxyIdB));
+                FixtureProxy userDataA = _tree.GetUserData(primaryPair.ProxyIdA);
+                FixtureProxy userDataB = _tree.GetUserData(primaryPair.ProxyIdB);
 
                 callback(ref userDataA, ref userDataB);
                 ++i;
@@ -257,10 +234,7 @@ namespace FarseerPhysics.Collision
         /// <param name="aabb">The aabb.</param>
         public void Query(Func<int, bool> callback, ref AABB aabb)
         {
-            throw new Exception();
-            //FIXME: This passes internalProxyIds to the callback, but should pass externalProxyIds
-            _treeDynamic.Query(callback, ref aabb);
-            _treeStatic.Query(callback, ref aabb);
+            _tree.Query(callback, ref aabb);
         }
 
         /// <summary>
@@ -274,7 +248,7 @@ namespace FarseerPhysics.Collision
         /// <param name="input">The ray-cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1).</param>
         public void RayCast(Func<RayCastInput, int, float> callback, ref RayCastInput input)
         {
-            _treeDynamic.RayCast(callback, ref input); //FIXME: Need to RayCast both trees at the same time
+            _tree.RayCast(callback, ref input);
         }
 
         public void TouchProxy(int proxyId)
@@ -290,10 +264,10 @@ namespace FarseerPhysics.Collision
         /// <returns></returns>
         public int ComputeHeight()
         {
-            return Math.Max(_treeDynamic.ComputeHeight(), _treeStatic.ComputeHeight());
+            return _tree.ComputeHeight();
         }
 
-        private void BufferMove(int externalProxyId)
+        private void BufferMove(int proxyId)
         {
             if (_moveCount == _moveCapacity)
             {
@@ -303,7 +277,7 @@ namespace FarseerPhysics.Collision
                 Array.Copy(oldBuffer, _moveBuffer, _moveCount);
             }
 
-            _moveBuffer[_moveCount] = externalProxyId;
+            _moveBuffer[_moveCount] = proxyId;
             ++_moveCount;
         }
 
@@ -321,10 +295,8 @@ namespace FarseerPhysics.Collision
 
         private bool QueryCallback(int proxyId)
         {
-            var externalProxyId = GetExternalId(proxyId, _queryingStaticTree);
-
             // A proxy cannot form a pair with itself.
-            if (externalProxyId == _queryProxyId)
+            if (proxyId == _queryProxyId)
             {
                 return true;
             }
@@ -338,34 +310,11 @@ namespace FarseerPhysics.Collision
                 Array.Copy(oldBuffer, _pairBuffer, _pairCount);
             }
 
-            _pairBuffer[_pairCount].ProxyIdA = Math.Min(externalProxyId, _queryProxyId);
-            _pairBuffer[_pairCount].ProxyIdB = Math.Max(externalProxyId, _queryProxyId);
+            _pairBuffer[_pairCount].ProxyIdA = Math.Min(proxyId, _queryProxyId);
+            _pairBuffer[_pairCount].ProxyIdB = Math.Max(proxyId, _queryProxyId);
             ++_pairCount;
 
             return true;
         }
-
-        #region ProxyId Mangling
-        //We encode whether a proxy is for a static or dynamic body in the lowest bit
-        //This allows us to skip doing static-static collisions
-        //internalProxyId are the IDs without this encoding applied.
-        //externalProxyId are the IDs with this encoding applied.
-
-        private int GetExternalId(int internalProxyId, bool isStatic)
-        {
-            return (internalProxyId << 1) | (isStatic ? 1 : 0);
-        }
-
-        private bool IsStaticProxyId(int externalProxyId)
-        {
-            return (externalProxyId & 1) == 1;
-        }
-
-        private int GetInternalId(int externalProxyId)
-        {
-            return externalProxyId >> 1;
-        }
-
-        #endregion
     }
 }
